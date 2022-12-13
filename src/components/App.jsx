@@ -28,15 +28,25 @@ export class App extends React.Component {
   };
 
   componentDidMount() {
-    const contacts = JSON.parse(localStorage.getItem('contacts'));
+    const contactsFromStorage = JSON.parse(localStorage.getItem('contacts'));
 
-    if (contacts) {
-      this.setState({ contacts: contacts });
+    if (!contactsFromStorage) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
+
+    if (contactsFromStorage) {
+      this.setState({ contacts: contactsFromStorage });
+    }
+
+    if (contactsFromStorage.length === 0) {
+      Notiflix.Notify.info('No contacts in your list yet', notifySettings);
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    if (prevState.contacts !== this.state.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
   }
 
   onAddBtnClick = FormData => {
@@ -75,6 +85,19 @@ export class App extends React.Component {
 
   onFilterChange = event => {
     this.setState({ filter: event.target.value });
+
+    const query = this.state.filter.toLocaleLowerCase();
+
+    const itemByQuery = this.state.contacts.find(contact =>
+      contact.name.toLocaleLowerCase().includes(query)
+    );
+
+    if (!itemByQuery) {
+      Notiflix.Notify.warning(
+        'No contacts matching your request',
+        notifySettings
+      );
+    }
   };
 
   filterContacts = () => {
@@ -84,12 +107,6 @@ export class App extends React.Component {
       contact.name.toLocaleLowerCase().includes(query)
     );
 
-    if (filteredContacts.length === 0) {
-      Notiflix.Notify.warning(
-        'No contacts matching your request',
-        notifySettings
-      );
-    }
     return filteredContacts;
   };
 
