@@ -30,16 +30,12 @@ export class App extends React.Component {
   componentDidMount() {
     const contactsFromStorage = JSON.parse(localStorage.getItem('contacts'));
 
-    if (!contactsFromStorage) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-
     if (contactsFromStorage) {
       this.setState({ contacts: contactsFromStorage });
-    }
 
-    if (contactsFromStorage.length === 0) {
-      Notiflix.Notify.info('No contacts in your list yet', notifySettings);
+      if (contactsFromStorage.length === 0) {
+        Notiflix.Notify.info('No contacts in your list yet', notifySettings);
+      }
     }
   }
 
